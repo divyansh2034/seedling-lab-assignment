@@ -43,6 +43,25 @@ from fastapi.middleware.cors import CORSMiddleware
 from openai import OpenAI
 from pydantic import BaseModel, HttpUrl, ValidationError
 
+from pathlib import Path
+from dotenv import load_dotenv
+import os
+
+BASE_DIR = Path(__file__).resolve().parent.parent
+env_file = BASE_DIR / ".env"
+
+print("Looking for .env at:", env_file)
+
+load_dotenv(dotenv_path=env_file, override=True)
+
+HF_TOKEN = os.getenv("HF_TOKEN")
+GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")
+
+print("HF token loaded:", HF_TOKEN is not None)
+print("GH token loaded:", GITHUB_TOKEN is not None)
+print("GH token prefix:", GITHUB_TOKEN[:7] if GITHUB_TOKEN else None)
+
+
 
 # -----------------------------------------------------------------------------
 # 1. CONFIGURATION (MODEL + TOKENS)
@@ -218,8 +237,8 @@ def github_headers() -> Dict[str, str]:
     If GITHUB_TOKEN is set, we include it to get higher rate limits.
     """
     headers = {
-        "Accept": "application/vnd.github+json",
-        "User-Agent": "Seedling-GitHub-Issue-Assistant",
+    "Accept": "application/vnd.github+json",
+    "X-GitHub-Api-Version": "2022-11-28",
     }
     if GITHUB_TOKEN:
         headers["Authorization"] = f"Bearer {GITHUB_TOKEN}"
